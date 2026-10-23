@@ -34,3 +34,7 @@ Data model:
 
 CAUTION:
 This is a functional starter for development and must be tested with non-production data before handling controlled medicines. Review access controls, approvals, backups, reconciliation, and audit policy before real hospital use. Do not commit secrets to GitHub.
+
+
+Current Google Apps Script Web App URL configured in config/google-apps-script.js:
+https://script.google.com/macros/s/AKfycbyEFbNvvLoVdmM1O33VobIvo1-mMKGnVEXYhVA7dAxeop4a1LimUbDfCC1bohqydME4Qg/exec
