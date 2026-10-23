@@ -1,26 +1,22 @@
-# CNIPMS deployment starter
+# CNIPMS deployment package
 
-This package contains the English UI prototype and a Vercel serverless proxy to the Apps Script API.
+## Included
+- `index.html`: English UI with sign-in, live Generic Drugs and Brand Products lists, add forms, automatic generic-name lookup by Generic Code, and API connection status. Inventory is clearly marked as not connected until stock endpoints are implemented.
+- `api/auth.js`: single-admin password sign-in with an HttpOnly, Secure, SameSite=Strict, signed 8-hour session cookie.
+- `api/cnips.js`: authenticated Vercel proxy to Google Apps Script.
+- `vercel.json`: security headers.
 
-## Deploy to GitHub/Vercel
-1. Back up the current GitHub repository.
-2. Upload the contents of this folder to the repository root (not the containing folder).
-3. In Vercel, add these Environment Variables for Production and Preview as appropriate:
-   - `CNIPMS_GAS_URL`: the deployed Apps Script `/exec` URL.
-   - `CNIPMS_API_TOKEN`: exactly the token stored in Apps Script > Project Settings > Script Properties.
-   - `CNIPMS_OPERATOR_KEY`: a long random temporary key for integration testing.
-4. Redeploy after setting variables.
+## Vercel Environment Variables
+Set these in Vercel Project Settings → Environment Variables (Production and Preview as appropriate):
+- `CNIPMS_GAS_URL`: deployed Apps Script URL ending in `/exec`.
+- `CNIPMS_API_TOKEN`: exactly the secret in Apps Script → Project Settings → Script Properties → `CNIPMS_API_TOKEN`.
+- `CNIPMS_ADMIN_PASSWORD`: strong unique administrator password.
+- `CNIPMS_SESSION_SECRET`: long random secret (at least 32 random bytes).
 
-## API test
-POST `/api/cnips` with header `x-cnips-operator-key: <CNIPMS_OPERATOR_KEY>` and JSON body, e.g.:
+Do not commit actual secrets. After setting variables, redeploy.
 
-```json
-{"action":"listGenerics","data":{}}
-```
+## Apps Script requirements
+The Apps Script project must contain `doPost` actions `listGenerics`, `getGeneric`, `addGeneric`, `addBrand`, and `listBrands`, and use the same `CNIPMS_API_TOKEN` Script Property. Redeploy Apps Script after code changes and select the latest deployment version.
 
-Supported actions: `listGenerics`, `getGeneric`, `addGeneric`, `addBrand`, `listBrands`.
-
-## Critical security limitation
-The shared operator key is only a temporary integration gate. Do not put it in frontend code or distribute it. The current UI does not implement a proper sign-in flow, and this proxy does not provide individual user identity or role-based authorization. Do not use this setup for real controlled-drug inventory until proper authentication, role checks, per-user audit identity, request validation, rate limiting, and independent review are implemented. Apps Script's `doGet` health check is public if the deployment allows anonymous access; do not expose sensitive data from `doGet`.
-
-The current `index.html` is a UI prototype and is not yet wired to call `/api/cnips`; the API route is ready for integration testing from a trusted server-side or controlled test client.
+## Important limitations
+This is an integration milestone, not production-ready controlled-drug software. The current sign-in is one shared administrator account, not individual staff identity or role-based access. The Apps Script audit implementation must record the actual actor if per-user accountability is required. Inventory balances, lots, receipts, transfers, dispensing, reorder persistence and stock movement endpoints are not implemented in this package. Do not use it for real controlled-drug transactions until individual identity, role permissions, stronger authentication, rate limiting, robust audit controls, concurrency/integrity tests, backup/restore, and independent security review are completed.
