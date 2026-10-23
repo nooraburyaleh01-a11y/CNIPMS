@@ -1,30 +1,26 @@
-# CNIPMS Deployment Starter
+# CNIPMS deployment starter
 
-This repository-ready folder contains the current English CNIPMS inventory UI prototype.
+This package contains the English UI prototype and a Vercel serverless proxy to the Apps Script API.
 
-## Current status
-- Static HTML/CSS/JavaScript interface.
-- Demo inventory data is stored in browser memory in `index.html`.
-- It is **not yet connected** to Google Sheets or Google Apps Script.
-- Do not enter real patient, prescription, or controlled-drug transaction data into this prototype.
+## Deploy to GitHub/Vercel
+1. Back up the current GitHub repository.
+2. Upload the contents of this folder to the repository root (not the containing folder).
+3. In Vercel, add these Environment Variables for Production and Preview as appropriate:
+   - `CNIPMS_GAS_URL`: the deployed Apps Script `/exec` URL.
+   - `CNIPMS_API_TOKEN`: exactly the token stored in Apps Script > Project Settings > Script Properties.
+   - `CNIPMS_OPERATOR_KEY`: a long random temporary key for integration testing.
+4. Redeploy after setting variables.
 
-## Deploy frontend with GitHub + Vercel
-1. Create a private GitHub repository named `cnipms`.
-2. Upload `index.html`, this README, and the `apps-script` folder.
-3. In Vercel, choose **Add New → Project**, import the `cnipms` repository, and deploy.
-4. Framework preset: **Other**. Build command: leave empty. Output directory: `.` (or leave default if Vercel detects static HTML).
-5. Every future push to the connected branch will trigger a deployment.
+## API test
+POST `/api/cnips` with header `x-cnips-operator-key: <CNIPMS_OPERATOR_KEY>` and JSON body, e.g.:
 
-## Google Sheets + Apps Script integration (next phase)
-1. Create a dedicated Google Spreadsheet named `CNIPMS_DB`.
-2. Create an Apps Script project attached to that spreadsheet.
-3. Implement server-side validation for manually entered Generic and Brand codes, stock movements, per-location reorder levels, and audit events.
-4. Deploy Apps Script as a Web App only after authentication and access controls are designed.
-5. Add the deployed endpoint as a Vercel environment variable (for example `CNIPMS_API_URL`) and update the frontend to call the backend.
+```json
+{"action":"listGenerics","data":{}}
+```
 
-## Important security requirements
-- Do not put Google credentials, private keys, or secrets in frontend JavaScript or GitHub.
-- Do not treat a hidden URL as authentication.
-- Validate every request server-side; use locking for duplicate-code and stock concurrency checks.
-- Preserve stock movements as an append-only ledger; do not allow silent edits/deletions of approved movements.
-- Test with synthetic data before production use.
+Supported actions: `listGenerics`, `getGeneric`, `addGeneric`, `addBrand`, `listBrands`.
+
+## Critical security limitation
+The shared operator key is only a temporary integration gate. Do not put it in frontend code or distribute it. The current UI does not implement a proper sign-in flow, and this proxy does not provide individual user identity or role-based authorization. Do not use this setup for real controlled-drug inventory until proper authentication, role checks, per-user audit identity, request validation, rate limiting, and independent review are implemented. Apps Script's `doGet` health check is public if the deployment allows anonymous access; do not expose sensitive data from `doGet`.
+
+The current `index.html` is a UI prototype and is not yet wired to call `/api/cnips`; the API route is ready for integration testing from a trusted server-side or controlled test client.
