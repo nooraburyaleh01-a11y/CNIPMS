@@ -1,5 +1,5 @@
-// CNIPMS Google Apps Script Web App endpoint.
-// This is a URL, not a secret. Keep CNIPMS_API_TOKEN in Vercel environment variables.
+// Google Apps Script Web App URL. No Vercel environment variables are required in this build.
+// WARNING: because no login/token is used, anyone who can reach the app may read or change records.
 module.exports = {
-  GAS_URL: "https://script.google.com/macros/s/AKfycbypN7Y4RqzKjzKj4wWZ3Z_G-qWKlsbDkIZLV-l4MSaTmRzBUoMzOTSb8j-2_NNzssj03A/exec"
+  GAS_URL: "https://script.google.com/macros/s/AKfycbyEFbNvvLoVdmM1O33VobIvo1-mMKGnVEXYhVA7dAxeop4a1LimUbDfCC1bohqydME4Qg/exec"
 };

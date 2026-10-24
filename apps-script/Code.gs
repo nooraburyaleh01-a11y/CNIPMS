@@ -1,8 +1,9 @@
 /**
  * CNIPMS Google Sheets backend — catalog + inventory.
- * Script Properties required:
- *   CNIPMS_API_TOKEN = same token configured in Vercel
- *   CNIPMS_SPREADSHEET_ID = ID of the existing CNIPMS spreadsheet
+ * No API token or Vercel environment variables are used in this build.
+ * If this is a bound script, it uses the bound spreadsheet. Otherwise set
+ * CNIPMS_SPREADSHEET_ID in Script Properties.
+ * WARNING: this public endpoint has no authentication; anyone with access can write data.
  */
 const TAB = {
   generics: 'GenericDrugs', brands: 'BrandProducts', locations: 'StorageLocations',
@@ -23,8 +24,6 @@ function doGet() {
 function doPost(e) {
   try {
     const req = JSON.parse((e && e.postData && e.postData.contents) || '{}');
-    const token = PropertiesService.getScriptProperties().getProperty('CNIPMS_API_TOKEN') || '';
-    if (!token || !safeEqual_(String(req.token||''), token)) return out_({ok:false,error:'UNAUTHORIZED'});
     const d = req.data || {};
     let result;
     switch (String(req.action||'')) {

@@ -1,22 +1,20 @@
-CNIPMS — Reference Design Build
+CNIPMS — Reference Design / No Vercel Environment Variables
 
-This package rebuilds the frontend to closely follow the provided reference screenshot: dark green pharmacy header and sidebar, five KPI cards, tabbed drug catalog, searchable generic list, generic details, related brand products, quick actions, inventory, stock transfers, expiry management and reorder alerts.
-
-Data source: Google Sheets only, via Google Apps Script Web App.
-No login screen is included by request. This means access is not restricted by an application login; do not expose publicly because this system handles controlled-drug inventory.
+This build uses the public Google Apps Script Web App URL stored in config/google-apps-script.js.
+No Vercel environment variables and no API token are used.
 
 Files:
-- index.html — complete responsive UI
-- api/catalog.js — Vercel API proxy
-- config/google-apps-script.js — public Apps Script URL (no secret here)
-- apps-script/Code.gs — Apps Script API
-- vercel.json — Vercel configuration
+- index.html: reference-style responsive UI
+- api/catalog.js: public proxy to Google Apps Script
+- config/google-apps-script.js: Web App URL
+- apps-script/Code.gs: Apps Script backend without API-token check
+- vercel.json: Vercel configuration
 
-Deploy:
-1. Upload the contents to the ROOT of the existing GitHub repo and commit.
-2. Set CNIPMS_API_TOKEN in Vercel Environment Variables.
-3. In Apps Script Script Properties set CNIPMS_API_TOKEN to the same value and CNIPMS_SPREADSHEET_ID to the existing spreadsheet ID.
-4. Review apps-script/Code.gs, then update the existing Apps Script Web App deployment to a new version once.
-5. Test with non-controlled sample data. Existing sheets with different headers need a backup and schema review first.
+GitHub/Vercel:
+1. Upload contents to the ROOT of the existing GitHub repo and commit. Vercel should auto-deploy if connected.
+2. Vercel Environment Variables are not required by this build.
+3. Apps Script: if the current deployed Code.gs still checks CNIPMS_API_TOKEN, this GitHub-only upload will not remove that check. To use this no-token version, replace Apps Script code with apps-script/Code.gs and deploy a new version of the existing Web App. If your script is bound to the spreadsheet, it can use the active spreadsheet. Otherwise configure CNIPMS_SPREADSHEET_ID in Apps Script Script Properties (not a Vercel environment variable).
+4. Keep the Web App URL in config/google-apps-script.js aligned with the current deployment URL.
 
-The interface only displays counts and rows returned by the API; it does not fabricate inventory data. The API/backend has not been tested against the live spreadsheet. Dispensing and user/role permissions are not implemented in this no-login version.
+SECURITY WARNING:
+No login and no token means the Web App can be publicly read/written if its deployment allows anonymous access. Anyone who finds the URL/site may read or alter controlled-drug inventory. This configuration is suitable only for isolated testing with fake data, not live hospital/narcotic records. Do not use for real controlled-drug transactions without an access-control layer.
